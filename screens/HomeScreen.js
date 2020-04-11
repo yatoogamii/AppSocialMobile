@@ -1,6 +1,10 @@
+// React
 import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { AppStateContext } from "../App";
+
+// firebase
+import auth from "@react-native-firebase/auth";
 
 export function HomeScreen({ navigation }) {
   const appState = useContext(AppStateContext);
@@ -10,7 +14,7 @@ export function HomeScreen({ navigation }) {
 
   async function logout() {
     try {
-      /* await firebase.auth().signOut(); */
+      await auth().signOut();
       appState.setLogged(false);
     } catch (e) {
       console.log(e);

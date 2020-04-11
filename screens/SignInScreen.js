@@ -1,5 +1,7 @@
 // env
 import { FACEBOOK_APP_ID, FACEBOOK_APP_NAME } from "react-native-dotenv";
+
+// react
 import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
@@ -12,6 +14,10 @@ import {
 } from "react-native";
 import { AppStateContext } from "../App";
 
+// firebase
+import auth from "@react-native-firebase/auth";
+import { LoginManager, AccessToken } from "react-native-fbsdk";
+
 export function SignInScreen({ navigation }) {
   const [userMail, setUserMail] = useState("");
   const [userPassword, setUserPassword] = useState("");
@@ -20,13 +26,14 @@ export function SignInScreen({ navigation }) {
 
   async function signInByEmail() {
     try {
-      /* const response = await firebase */
-      /*   .auth() */
-      /*   .signInWithEmailAndPassword(userMail, userPassword); */
-      /* appState.setUserProfile({ */
-      /*   isNewUser: response.additionalUserInfo.isNewUser, */
-      /* }); */
-      /* appState.setLogged(true); */
+      const response = await auth().signInWithEmailAndPassword(
+        userMail,
+        userPassword,
+      );
+      appState.setUserProfile({
+        isNewUser: response.additionalUserInfo.isNewUser,
+      });
+      appState.setLogged(true);
     } catch (e) {
       console.log(e);
       setErrorMessage({ code: e.code, message: e.message });

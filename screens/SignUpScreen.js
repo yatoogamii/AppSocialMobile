@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
 import { AppStateContext } from "../App";
 
 // firebase
+import auth from "@react-native-firebase/auth";
+import { db } from "../App.js";
 
 export function SignUpScreen({ navigation }) {
   const [userMail, setUserMail] = useState("");
@@ -14,21 +16,22 @@ export function SignUpScreen({ navigation }) {
   async function signUp() {
     try {
       // create user
-      /* const response = await firebase */
-      /*   .auth() */
-      /*   .createUserWithEmailAndPassword(userMail, userPassword); */
-      /* appState.setUserProfile({ */
-      /*   isNewUser: response.additionalUserInfo.isNewUser, */
-      /* }); */
+      const response = await auth().createUserWithEmailAndPassword(
+        userMail,
+        userPassword,
+      );
+      appState.setUserProfile({
+        isNewUser: response.additionalUserInfo.isNewUser,
+      });
 
       // create doc with new user
-      /* const newUser = await db.collection("users").add({ */
-      /*   email: response.user.email, */
-      /*   displayName: response.user.displayName, */
-      /*   phone: response.user.phoneNumber, */
-      /*   photoURL: response.user.photoURL, */
-      /*   tokenId: await response.user.getIdToken(), */
-      /* }); */
+      const newUser = await db.collection("users").add({
+        email: response.user.email,
+        displayName: response.user.displayName,
+        phone: response.user.phoneNumber,
+        photoURL: response.user.photoURL,
+        tokenId: await response.user.getIdToken(),
+      });
 
       // logged
       appState.setLogged(true);

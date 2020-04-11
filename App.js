@@ -32,7 +32,7 @@ const appState = {
 // firebase
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-const db = firestore();
+export const db = firestore();
 
 // context
 export const AppStateContext = createContext(null);
