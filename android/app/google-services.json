@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "191864958746",
+    "firebase_url": "https://appsocial-23e47.firebaseio.com",
+    "project_id": "appsocial-23e47",
+    "storage_bucket": "appsocial-23e47.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191864958746:android:ebbc4ee72f2bc77c1c86a3",
+        "android_client_info": {
+          "package_name": "com.reactnativefirebasetest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191864958746-4m76l33gn442rqu8qov1s5ft4tgd374c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reactnativefirebasetest",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "191864958746-063ht4idq2ihpb39bopd2adqsgf9msb0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWQdMbp1a9JbAvZ_hEH3wwWv74Ivkor40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191864958746-063ht4idq2ihpb39bopd2adqsgf9msb0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191864958746-ku237huhca7bncqjt04afck8helm9pur.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "AppSocial.iOS"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191864958746:android:38faac253504a5041c86a3",
+        "android_client_info": {
+          "package_name": "com.yatoogamii.appsocial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191864958746-063ht4idq2ihpb39bopd2adqsgf9msb0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWQdMbp1a9JbAvZ_hEH3wwWv74Ivkor40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191864958746-063ht4idq2ihpb39bopd2adqsgf9msb0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191864958746-ku237huhca7bncqjt04afck8helm9pur.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "AppSocial.iOS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
