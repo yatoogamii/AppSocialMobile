@@ -15,6 +15,11 @@ export function SignUpScreen({ navigation }) {
 
   async function signUp() {
     try {
+      if (!userMail.trim())
+        throw { code: "auth/invalid-email", message: "Mail obligatoire" };
+      if (!userPassword.trim())
+        throw { code: "auth/wrong-password", message: "Password obligatoire" };
+
       // create user
       const response = await auth().createUserWithEmailAndPassword(
         userMail,
@@ -65,6 +70,7 @@ export function SignUpScreen({ navigation }) {
           autoCapitalize="none"
           textContentType="password"
           placeholder="password"
+          secureTextEntry={true}
         />
         {error.code === "auth/weak-password" && (
           <Text style={{ color: "red" }}>{error.message}</Text>

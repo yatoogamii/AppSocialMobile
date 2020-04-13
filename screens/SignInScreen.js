@@ -17,6 +17,7 @@ import { AppStateContext } from "../App";
 // firebase
 import auth from "@react-native-firebase/auth";
 import { LoginManager, AccessToken } from "react-native-fbsdk";
+import { db } from "../App.js";
 
 export function SignInScreen({ navigation }) {
   const [userMail, setUserMail] = useState("");
@@ -26,6 +27,11 @@ export function SignInScreen({ navigation }) {
 
   async function signInByEmail() {
     try {
+      if (!userMail.trim())
+        throw { code: "auth/invalid-email", message: "Mail obligatoire" };
+      if (!userPassword.trim())
+        throw { code: "auth/wrong-password", message: "Password obligatoire" };
+
       const response = await auth().signInWithEmailAndPassword(
         userMail,
         userPassword,
@@ -41,35 +47,60 @@ export function SignInScreen({ navigation }) {
   }
 
   async function signInByFacebook() {
-    /* try { */
-    /* await Facebook.initializeAsync(FACEBOOK_APP_ID, FACEBOOK_APP_NAME); */
-    /* const { type, token } = await Facebook.logInWithReadPermissionsAsync({ */
-    /*   permissions: [ */
-    /*     "public_profile", */
-    /*     "email", */
-    /*     "user_gender", */
-    /*     "user_location", */
-    /*   ], */
-    /* }); */
-    /* if (type === "success") { */
-    /*   const credential = firebase.auth.FacebookAuthProvider.credential(token); */
-    /*   const response = await firebase.auth().signInWithCredential(credential); */
-    /*   appState.setUserProfile({ */
-    /*     isNewUser: response.additionalUserInfo.isNewUser, */
-    /*   }); */
-    /*   appState.setLogged(true); */
-    /* } */
-    /* } catch (e) { */
-    /* console.log(e); */
-    /* setErrorMessage({ code: e.code, message: e.message }); */
-    /* } */
+    try {
+      const result = await LoginManager.logInWithPermissions([
+        "public_profile",
+        "email",
+        "user_gender",
+        "user_location",
+      ]);
+      if (result.isCancelled) {
+        throw {
+          code: "auth/facebook",
+          message: "User cancelled the login process",
+        };
+      }
+      const data = await AccessToken.getCurrentAccessToken();
+      if (!data) {
+        throw {
+          code: "auth/facebook",
+          message: "Something went wrong obtaining access token",
+        };
+      }
+      // Create a Firebase credential with the AccessToken
+      const facebookCredential = auth.FacebookAuthProvider.credential(
+        data.accessToken,
+      );
+      // Sign-in the user with the credential
+      const response = await auth().signInWithCredential(facebookCredential);
+      appState.setUserProfile({
+        isNewUser: response.additionalUserInfo.isNewUser,
+      });
+
+      if (response.additionalUserInfo.isNewUser) {
+        // create doc with new user
+        const newUser = await db.collection("users").add({
+          email: response.user.email,
+          displayName: response.user.displayName,
+          phone: response.user.phoneNumber,
+          photoURL: response.user.photoURL,
+          tokenId: await response.user.getIdToken(),
+        });
+      }
+
+      appState.setLogged(true);
+    } catch (e) {
+      console.log(e);
+      setErrorMessage({ code: e.code, message: e.message });
+    }
   }
 
   return (
     <View style={styles.containerCenter}>
       <View style={styles.containerForm}>
         {(error.code === "auth/user-not-found" ||
-          error.code === "auth/user-disabled") && (
+          error.code === "auth/user-disabled" ||
+          error.code === "auth/facebook") && (
           <Text style={{ color: "red" }}>{error.message}</Text>
         )}
         <TextInput
@@ -89,6 +120,7 @@ export function SignInScreen({ navigation }) {
           autoCapitalize="none"
           textContentType="password"
           placeholder="password"
+          secureTextEntry={true}
         />
         {error.code === "auth/wrong-password" && (
           <Text style={{ color: "red" }}>{error.message}</Text>

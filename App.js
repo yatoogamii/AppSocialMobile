@@ -63,6 +63,7 @@ export default function App() {
     auth().onAuthStateChanged(async user => {
       try {
         if (user !== null) {
+          await user.reload();
           setUserProfile({
             email: user.email,
             displayName: user.displayName,
