@@ -16,6 +16,9 @@ import { SignUpScreen } from "./screens/SignUpScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { CompleteProfileScreen } from "./screens/CompleteProfileScreen";
 
+// tools
+import { createFakeProfiles } from "./tools/fakeTool.js";
+
 const appState = {
   userProfile: {
     email: "",
@@ -84,6 +87,7 @@ export default function App() {
 
   useEffect(() => {
     checkUserAlreadyLogged();
+    createFakeProfiles(2);
   }, []);
 
   if (isLoading) {
