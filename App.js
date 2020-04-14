@@ -27,6 +27,7 @@ const appState = {
     photoURL: "",
     tokenId: "",
     isNewUser: false,
+    profileComplete: false,
   },
   setUserProfile: action => {},
   setLogged: action => {},
@@ -36,6 +37,7 @@ const appState = {
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 export const db = firestore();
+const { FieldPath } = firestore;
 
 // context
 export const AppStateContext = createContext(null);
@@ -67,15 +69,26 @@ export default function App() {
       try {
         if (user !== null) {
           await user.reload();
-          setUserProfile({
-            email: user.email,
-            displayName: user.displayName,
-            phone: user.phoneNumber,
-            photoURL: user.photoURL,
-            tokenId: await user.getIdToken(),
+
+          const response = await db
+            .collection("users")
+            .where(new FieldPath("identity", "email"), "==", user.email)
+            .get();
+
+          response.forEach(async docs => {
+            setUserProfile({
+              email: user.email,
+              displayName: user.displayName,
+              phone: user.phoneNumber,
+              photoURL: user.photoURL,
+              tokenId: await user.getIdToken(),
+              profileComplete: docs.data().permissions.profileComplete,
+            });
           });
+
           setLogged(true);
         }
+
         setIsLoading(false);
       } catch (e) {
         console.log(e);
@@ -87,7 +100,7 @@ export default function App() {
 
   useEffect(() => {
     checkUserAlreadyLogged();
-    createFakeProfiles(2);
+    // createFakeProfiles(2);
   }, []);
 
   if (isLoading) {
@@ -119,6 +132,7 @@ const HomeStack = createStackNavigator();
 
 function HomeStackScreen() {
   const appState = useContext(AppStateContext);
+  console.log(appState);
   return (
     <HomeStack.Navigator>
       {appState.userProfile.isNewUser === true ? (
