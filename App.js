@@ -25,7 +25,7 @@ const appState = {
     displayName: "",
     phone: "",
     photoURL: "",
-    tokenId: "",
+    userId: "",
     isNewUser: false,
     profileComplete: false,
   },
@@ -72,16 +72,17 @@ export default function App() {
 
           const response = await db
             .collection("users")
-            .where(new FieldPath("identity", "email"), "==", user.email)
+            .where(new FieldPath("identity", "userId"), "==", user.uid)
             .get();
 
           response.forEach(async docs => {
+            console.log(docs.data());
             setUserProfile({
               email: user.email,
               displayName: user.displayName,
               phone: user.phoneNumber,
               photoURL: user.photoURL,
-              tokenId: await user.getIdToken(),
+              userId: user.uid,
               profileComplete: docs.data().permissions.profileComplete,
             });
           });
@@ -132,10 +133,9 @@ const HomeStack = createStackNavigator();
 
 function HomeStackScreen() {
   const appState = useContext(AppStateContext);
-  console.log(appState);
   return (
     <HomeStack.Navigator>
-      {appState.userProfile.isNewUser === true ? (
+      {appState.userProfile.profileComplete === false ? (
         <HomeStack.Screen name="CompleteProfile">
           {props => <CompleteProfileScreen />}
         </HomeStack.Screen>

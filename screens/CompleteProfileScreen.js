@@ -5,9 +5,20 @@ import { AppStateContext } from "../App";
 export function CompleteProfileScreen() {
   const appState = useContext(AppStateContext);
 
+  async function UpdateProfile() {
+    try {
+      appState.setUserProfile({
+        profileComplete: true,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <View style={styles.containerCenter}>
       <Text style={styles.title}>Veuillez completer votre profile</Text>
+      <Button title="Finaliser le profil" onPress={UpdateProfile} />
     </View>
   );
 }

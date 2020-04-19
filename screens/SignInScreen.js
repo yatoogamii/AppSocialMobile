@@ -84,7 +84,7 @@ export function SignInScreen({ navigation }) {
           displayName: response.user.displayName,
           phone: response.user.phoneNumber,
           photoURL: response.user.photoURL,
-          tokenId: await response.user.getIdToken(),
+          userId: response.user.uid,
         });
       }
 

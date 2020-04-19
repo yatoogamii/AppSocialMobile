@@ -56,7 +56,7 @@ export async function createFakeProfiles(numbersOfProfiles) {
             faker.image.avatar(),
           ],
           bio: faker.lorem.paragraph(),
-          tokenId: await response.user.getIdToken(),
+          userId: response.user.uid,
         },
         whatIWant: {
           gender: randomizerArray(["male", "female", "non-binary"]),
@@ -121,6 +121,7 @@ export async function createFakeProfiles(numbersOfProfiles) {
  *     displayName: string
  *     firstName: string
  *     email: string
+ *     userId: string
  *     phone: string
  *     age: number | number[] // soit l'age soit une fourchette
  *     gender: "male" | "female" | "non-binary"
