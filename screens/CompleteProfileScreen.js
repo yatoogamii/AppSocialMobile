@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
-import { AppStateContext } from "../App";
+import { AppStateContext, db, FieldPath } from "../App";
 
 export function CompleteProfileScreen() {
   const appState = useContext(AppStateContext);
@@ -9,6 +9,21 @@ export function CompleteProfileScreen() {
     try {
       appState.setUserProfile({
         profileComplete: true,
+      });
+
+      const userProfile = await db
+        .collection("users")
+        .where(
+          new FieldPath("identity", "userId"),
+          "==",
+          appState.userProfile.userId,
+        )
+        .get();
+
+      userProfile.forEach(docs => {
+        docs.ref.update({
+          "permissions.profileComplete": true,
+        });
       });
     } catch (e) {
       console.log(e);

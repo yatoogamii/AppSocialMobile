@@ -28,6 +28,10 @@ const appState = {
     userId: "",
     isNewUser: false,
     profileComplete: false,
+    like: [],
+    likeReciprocal: [],
+    refuse: [],
+    whatIWant: {},
   },
   setUserProfile: action => {},
   setLogged: action => {},
@@ -37,7 +41,7 @@ const appState = {
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 export const db = firestore();
-const { FieldPath } = firestore;
+export const { FieldPath } = firestore;
 
 // context
 export const AppStateContext = createContext(null);
@@ -49,6 +53,7 @@ export default function App() {
     userProfileReducer,
     appState,
   );
+  console.log(userProfile);
 
   function userProfileReducer(state, action) {
     return {
@@ -75,15 +80,21 @@ export default function App() {
             .where(new FieldPath("identity", "userId"), "==", user.uid)
             .get();
 
-          response.forEach(async docs => {
-            console.log(docs.data());
+          response.forEach(docs => {
+            const data = docs.data();
+            console.log("user in App");
+            console.log(data);
             setUserProfile({
               email: user.email,
               displayName: user.displayName,
               phone: user.phoneNumber,
               photoURL: user.photoURL,
               userId: user.uid,
-              profileComplete: docs.data().permissions.profileComplete,
+              profileComplete: data.permissions.profileComplete,
+              like: data.match.like,
+              refuse: data.match.refuse,
+              likeReciprocal: data.match.likeReciprocal,
+              whatIWant: data.whatIWant,
             });
           });
 
