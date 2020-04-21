@@ -11,10 +11,7 @@ export async function createFakeProfiles(numbersOfProfiles) {
         password: "testtest",
       };
       // create and log user
-      const response = await auth().createUserWithEmailAndPassword(
-        newUser.email,
-        newUser.password,
-      );
+      const response = await auth().createUserWithEmailAndPassword(newUser.email, newUser.password);
       console.log(response);
 
       // create doc into user collection with new user
@@ -27,75 +24,27 @@ export async function createFakeProfiles(numbersOfProfiles) {
           phone: faker.phone.phoneNumberFormat(),
           age: randomizerNumber([13, 45]),
           gender: randomizerArray(["male", "female", "non-binary"]),
-          sexualOrientation: randomizerArray([
-            "hetero",
-            "homo",
-            "bi",
-            "pan",
-            "other",
-          ]),
+          sexualOrientation: randomizerArray(["hetero", "homo", "bi", "pan", "other"]),
           job: faker.name.jobTitle(),
-          hobbies: randomizerArray(
-            [
-              "foot",
-              "gaming",
-              "cook",
-              "shopping",
-              "nature",
-              "tech",
-              "sport",
-              "dessin",
-            ],
-            3,
-          ),
+          hobbies: randomizerArray(["foot", "gaming", "cook", "shopping", "nature", "tech", "sport", "dessin"], 3),
           city: faker.address.city(),
           country: faker.address.country(),
-          photos: [
-            faker.image.avatar(),
-            faker.image.avatar(),
-            faker.image.avatar(),
-          ],
+          photos: [faker.image.avatar(), faker.image.avatar(), faker.image.avatar()],
           bio: faker.lorem.paragraph(),
           userId: response.user.uid,
         },
         whatIWant: {
           gender: randomizerArray(["male", "female", "non-binary"]),
-          sexualOrientation: randomizerArray([
-            "hetero",
-            "homo",
-            "bi",
-            "pan",
-            "other",
-          ]),
+          sexualOrientation: randomizerArray(["hetero", "homo", "bi", "pan", "other"]),
           ageRange: [randomizerNumber([12, 18]), randomizerNumber([19, 30])],
-          hobbies: randomizerArray(
-            [
-              "foot",
-              "gaming",
-              "cook",
-              "shopping",
-              "nature",
-              "tech",
-              "sport",
-              "dessin",
-            ],
-            4,
-          ),
+          hobbies: randomizerArray(["foot", "gaming", "cook", "shopping", "nature", "tech", "sport", "dessin"], 4),
           country: faker.address.country(),
           city: faker.address.city(),
         },
         match: {
-          like: [faker.random.uuid(), faker.random.uuid(), faker.random.uuid()],
-          refuse: [
-            faker.random.uuid(),
-            faker.random.uuid(),
-            faker.random.uuid(),
-          ],
-          likeReciprocal: [
-            faker.random.uuid(),
-            faker.random.uuid(),
-            faker.random.uuid(),
-          ],
+          like: [],
+          refuse: [],
+          likeReciprocal: [],
         },
         permissions: {
           ghosted: false,

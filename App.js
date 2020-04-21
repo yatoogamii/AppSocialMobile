@@ -1,11 +1,5 @@
 // React import
-import React, {
-  useState,
-  useEffect,
-  useReducer,
-  useContext,
-  createContext,
-} from "react";
+import React, { useState, useEffect, useReducer, useContext, createContext } from "react";
 import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -28,6 +22,7 @@ const appState = {
     userId: "",
     isNewUser: false,
     profileComplete: false,
+    lastCandidate: "",
     like: [],
     likeReciprocal: [],
     refuse: [],
@@ -49,11 +44,7 @@ export const AppStateContext = createContext(null);
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [logged, setLogged] = useReducer(setLoggedReducer, false);
-  const [userProfile, setUserProfile] = useReducer(
-    userProfileReducer,
-    appState,
-  );
-  console.log(userProfile);
+  const [userProfile, setUserProfile] = useReducer(userProfileReducer, appState);
 
   function userProfileReducer(state, action) {
     return {
@@ -82,8 +73,6 @@ export default function App() {
 
           response.forEach(docs => {
             const data = docs.data();
-            console.log("user in App");
-            console.log(data);
             setUserProfile({
               email: user.email,
               displayName: user.displayName,
@@ -91,6 +80,7 @@ export default function App() {
               photoURL: user.photoURL,
               userId: user.uid,
               profileComplete: data.permissions.profileComplete,
+              lastCandidate: data.match.lastCandidate,
               like: data.match.like,
               refuse: data.match.refuse,
               likeReciprocal: data.match.likeReciprocal,
@@ -106,21 +96,17 @@ export default function App() {
         console.log(e);
       }
     });
-
-    setTimeout(() => {}, 1000);
   }
 
   useEffect(() => {
     checkUserAlreadyLogged();
-    // createFakeProfiles(2);
+    // createFakeProfiles(1);
   }, []);
 
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.textLoading}>
-          Chargement de votre session en cours...
-        </Text>
+        <Text style={styles.textLoading}>Chargement de votre session en cours...</Text>
         <ActivityIndicator size="large" color="#1d1d1d" />
       </View>
     );
@@ -133,9 +119,7 @@ export default function App() {
         setUserProfile,
         setLogged: setLogged,
       }}>
-      <NavigationContainer>
-        {logged === false ? <LoginStackScreen /> : <HomeStackScreen />}
-      </NavigationContainer>
+      <NavigationContainer>{logged === false ? <LoginStackScreen /> : <HomeStackScreen />}</NavigationContainer>
     </AppStateContext.Provider>
   );
 }
@@ -144,19 +128,7 @@ const HomeStack = createStackNavigator();
 
 function HomeStackScreen() {
   const appState = useContext(AppStateContext);
-  return (
-    <HomeStack.Navigator>
-      {appState.userProfile.profileComplete === false ? (
-        <HomeStack.Screen name="CompleteProfile">
-          {props => <CompleteProfileScreen />}
-        </HomeStack.Screen>
-      ) : (
-        <HomeStack.Screen name="Home">
-          {props => <HomeScreen {...props} />}
-        </HomeStack.Screen>
-      )}
-    </HomeStack.Navigator>
-  );
+  return <HomeStack.Navigator>{appState.userProfile.profileComplete === false ? <HomeStack.Screen name="CompleteProfile">{props => <CompleteProfileScreen />}</HomeStack.Screen> : <HomeStack.Screen name="Home">{props => <HomeScreen {...props} />}</HomeStack.Screen>}</HomeStack.Navigator>;
 }
 
 const LoginStack = createStackNavigator();
@@ -164,12 +136,8 @@ const LoginStack = createStackNavigator();
 function LoginStackScreen() {
   return (
     <LoginStack.Navigator>
-      <LoginStack.Screen name="SignIn">
-        {props => <SignInScreen {...props} />}
-      </LoginStack.Screen>
-      <LoginStack.Screen name="SignUp">
-        {props => <SignUpScreen {...props} />}
-      </LoginStack.Screen>
+      <LoginStack.Screen name="SignIn">{props => <SignInScreen {...props} />}</LoginStack.Screen>
+      <LoginStack.Screen name="SignUp">{props => <SignUpScreen {...props} />}</LoginStack.Screen>
     </LoginStack.Navigator>
   );
 }

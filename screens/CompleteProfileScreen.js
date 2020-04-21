@@ -13,11 +13,7 @@ export function CompleteProfileScreen() {
 
       const userProfile = await db
         .collection("users")
-        .where(
-          new FieldPath("identity", "userId"),
-          "==",
-          appState.userProfile.userId,
-        )
+        .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
         .get();
 
       userProfile.forEach(docs => {
