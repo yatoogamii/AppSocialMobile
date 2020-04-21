@@ -54,6 +54,83 @@ export function HomeScreen({ navigation }) {
     }
   }
 
+  async function likeCandidate() {
+    try {
+      updateLastCandidate();
+
+      const newAllCandidates = Array.from(allCandidates);
+      // if other user already like current user
+      if (allCandidates[allCandidates.length - 1].match.like.includes(appState.userProfile.userId)) {
+        // add other user into likeReciprocal of current user
+        const newLikeReciprocalList = appState.userProfile.likeReciprocal;
+        newLikeReciprocalList.push(allCandidates[allCandidates.length - 1].identity.userId);
+        appState.setUserProfile({
+          likeReciprocal: newLikeReciprocalList,
+        });
+        // update current user profile into bdd
+        const currentUserProfile = await db
+          .collection("users")
+          .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
+          .get();
+
+        currentUserProfile.forEach(docs => {
+          const newLikeReciprocalList = docs.data().match.likeReciprocal;
+          newLikeReciprocalList.push(allCandidates[allCandidates.length - 1].identity.userId);
+          docs.ref.update({
+            "match.likeReciprocal": newLikeReciprocalList,
+          });
+        });
+        // remove current user to like list of other user and add it to likeReciprocal too
+        const otherUserProfile = await db
+          .collection("users")
+          .where(new FieldPath("identity", "userId"), "==", allCandidates[allCandidates.length - 1].identity.userId)
+          .get();
+
+        // @TODO use async
+        otherUserProfile.forEach(docs => {
+          const newLikeReciprocalList = docs.data().match.likeReciprocal;
+          newLikeReciprocalList.push(appState.userProfile.userId);
+          const newLikeList = docs.data().match.like;
+          newLikeList.splice(newLikeList.indexOf(appState.userProfile.userId), 1);
+          docs.ref.update({
+            "match.likeReciprocal": newLikeReciprocalList,
+            "match.like": newLikeList,
+          });
+        });
+      } else {
+        const newLikeList = appState.userProfile.like;
+        newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
+        appState.setUserProfile({
+          like: newLikeList,
+        });
+        const userProfile = await db
+          .collection("users")
+          .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
+          .get();
+
+        userProfile.forEach(docs => {
+          const newLikeList = docs.data().match.like;
+          newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
+          docs.ref.update({
+            "match.like": newLikeList,
+          });
+        });
+      }
+
+      // remove refused candidate
+      newAllCandidates.splice(newAllCandidates.length - 1, 1);
+
+      if (newAllCandidates.length === 0) {
+        fetchAllProfiles(allCandidates[allCandidates.length - 1].identity.userId);
+      }
+
+      // update allCandidates without refused candidate
+      setAllCandidates(newAllCandidates);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function updateLastCandidate() {
     try {
       setLastCandidate(allCandidates[allCandidates.length - 1].identity.userId);
@@ -178,7 +255,7 @@ export function HomeScreen({ navigation }) {
           <>
             <Image style={styles.image} source={{ uri: allCandidates[allCandidates.length - 1].identity.photos[0] }} />
             <Text style={styles.title}>{allCandidates[0] ? allCandidates[allCandidates.length - 1].identity.displayName : ""}</Text>
-            <Button title="Yes" onPress={() => {}} />
+            <Button title="Yes" onPress={() => likeCandidate()} />
             <Button title="No" onPress={() => refuseCandidate()} />
           </>
         )}
