@@ -84,19 +84,32 @@ export function HomeScreen({ navigation }) {
   }
 
   async function fetchAllProfiles(newLastCandidate = "") {
-    if (newLastCandidate !== "") {
-      const query = await db
-        .collection("users")
-        .orderBy(new FieldPath("identity", "userId"))
-        .startAfter(newLastCandidate)
-        // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
-        // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
-        // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
-        .limit(5)
-        .get();
-
+    try {
+      let query = [];
       const newAllCandidates = [];
 
+      if (newLastCandidate !== "") {
+        query = await db
+          .collection("users")
+          .orderBy(new FieldPath("identity", "userId"))
+          .startAfter(newLastCandidate)
+          // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
+          // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
+          // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
+          .limit(5)
+          .get();
+      } else {
+        query = await db
+          .collection("users")
+          .orderBy(new FieldPath("identity", "userId"))
+          // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
+          // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
+          // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
+          .limit(5)
+          .get();
+      }
+
+      // forEach user find check if current user already refuse or like him and otherwise push him into newAllCandidates
       query.forEach(user => {
         const userData = user.data();
 
@@ -104,27 +117,48 @@ export function HomeScreen({ navigation }) {
           newAllCandidates.push(userData);
         }
       });
+
+      if (newAllCandidates.length === 0) {
+        // get current user
+        const userProfile = await db
+          .collection("users")
+          .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
+          .get();
+
+        // update match refuse list of current user into bdd
+        userProfile.forEach(docs => {
+          docs.ref.update({
+            "match.refuse": [],
+            "match.lastCandidate": "",
+          });
+        });
+
+        // update local refuse list
+        appState.setUserProfile({
+          refuse: [],
+        });
+
+        const query = await db
+          .collection("users")
+          .orderBy(new FieldPath("identity", "userId"))
+          // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
+          // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
+          // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
+          .limit(5)
+          .get();
+
+        query.forEach(user => {
+          const userData = user.data();
+
+          if (!appState.userProfile.like.includes(userData.identity.userId) && !appState.userProfile.likeReciprocal.includes(userData.identity.userId)) {
+            newAllCandidates.push(userData);
+          }
+        });
+      }
+
       setAllCandidates(newAllCandidates.reverse());
-    } else {
-      const query = await db
-        .collection("users")
-        .orderBy(new FieldPath("identity", "userId"))
-        // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
-        // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
-        // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
-        .limit(5)
-        .get();
-
-      const newAllCandidates = [];
-
-      query.forEach(user => {
-        const userData = user.data();
-
-        if (!appState.userProfile.refuse.includes(userData.identity.userId) && !appState.userProfile.like.includes(userData.identity.userId) && !appState.userProfile.likeReciprocal.includes(userData.identity.userId)) {
-          newAllCandidates.push(userData);
-        }
-      });
-      setAllCandidates(newAllCandidates.reverse());
+    } catch (e) {
+      console.log(e);
     }
   }
 
