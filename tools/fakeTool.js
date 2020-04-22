@@ -44,7 +44,6 @@ export async function createFakeProfiles(numbersOfProfiles) {
         match: {
           like: [],
           refuse: [],
-          likeReciprocal: [],
         },
         permissions: {
           ghosted: false,

@@ -59,45 +59,12 @@ export function HomeScreen({ navigation }) {
       updateLastCandidate();
 
       const newAllCandidates = Array.from(allCandidates);
+      let currentUserProfile = {};
+
       // if other user already like current user
       if (allCandidates[allCandidates.length - 1].match.like.includes(appState.userProfile.userId)) {
-        // add other user into likeReciprocal of current user
-        const newLikeReciprocalList = appState.userProfile.likeReciprocal;
-        newLikeReciprocalList.push(allCandidates[allCandidates.length - 1].identity.userId);
-        appState.setUserProfile({
-          likeReciprocal: newLikeReciprocalList,
-        });
-        // update current user profile into bdd
-        const currentUserProfile = await db
-          .collection("users")
-          .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
-          .get();
-
-        currentUserProfile.forEach(docs => {
-          const newLikeReciprocalList = docs.data().match.likeReciprocal;
-          newLikeReciprocalList.push(allCandidates[allCandidates.length - 1].identity.userId);
-          docs.ref.update({
-            "match.likeReciprocal": newLikeReciprocalList,
-          });
-        });
-        // remove current user to like list of other user and add it to likeReciprocal too
-        const otherUserProfile = await db
-          .collection("users")
-          .where(new FieldPath("identity", "userId"), "==", allCandidates[allCandidates.length - 1].identity.userId)
-          .get();
-
-        // @TODO use async
-        otherUserProfile.forEach(docs => {
-          const newLikeReciprocalList = docs.data().match.likeReciprocal;
-          newLikeReciprocalList.push(appState.userProfile.userId);
-          const newLikeList = docs.data().match.like;
-          newLikeList.splice(newLikeList.indexOf(appState.userProfile.userId), 1);
-          docs.ref.update({
-            "match.likeReciprocal": newLikeReciprocalList,
-            "match.like": newLikeList,
-          });
-        });
-      } else {
+        console.log("match");
+        // create match document
         const newLikeList = appState.userProfile.like;
         newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
         appState.setUserProfile({
@@ -114,6 +81,29 @@ export function HomeScreen({ navigation }) {
           docs.ref.update({
             "match.like": newLikeList,
           });
+
+          currentUserProfile = docs.data();
+        });
+
+        // matches
+        await db.collection("matches").add({
+          // @1 create variable for this and re used it
+          // @2 add ref of candidate and currentUser profile
+          participantsId: [appState.userProfile.userId, allCandidates[allCandidates.length - 1].identity.userId],
+          participantsProfile: [allCandidates[allCandidates.length - 1], currentUserProfile],
+          messages: [],
+        });
+
+        const newMatchesList = appState.userProfile.matches;
+        newMatchesList.push({
+          // @1 create variable for this and re used it
+          participantsId: [appState.userProfile.userId, allCandidates[allCandidates.length - 1].identity.userId],
+          participantsProfile: [allCandidates[allCandidates.length - 1], currentUserProfile],
+          messages: [],
+        });
+
+        appState.setUserProfile({
+          messages: newMatchesList,
         });
       }
 
@@ -190,7 +180,7 @@ export function HomeScreen({ navigation }) {
       query.forEach(user => {
         const userData = user.data();
 
-        if (!appState.userProfile.refuse.includes(userData.identity.userId) && !appState.userProfile.like.includes(userData.identity.userId) && !appState.userProfile.likeReciprocal.includes(userData.identity.userId)) {
+        if (!appState.userProfile.refuse.includes(userData.identity.userId) && !appState.userProfile.like.includes(userData.identity.userId)) {
           newAllCandidates.push(userData);
         }
       });
@@ -227,7 +217,7 @@ export function HomeScreen({ navigation }) {
         query.forEach(user => {
           const userData = user.data();
 
-          if (!appState.userProfile.like.includes(userData.identity.userId) && !appState.userProfile.likeReciprocal.includes(userData.identity.userId)) {
+          if (!appState.userProfile.like.includes(userData.identity.userId)) {
             newAllCandidates.push(userData);
           }
         });
@@ -240,6 +230,7 @@ export function HomeScreen({ navigation }) {
   }
 
   useEffect(() => {
+    console.log(appState.userProfile);
     fetchAllProfiles();
     return () => {
       setAllCandidates([]);

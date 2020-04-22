@@ -24,9 +24,9 @@ const appState = {
     profileComplete: false,
     lastCandidate: "",
     like: [],
-    likeReciprocal: [],
     refuse: [],
     whatIWant: {},
+    matches: [],
   },
   setUserProfile: action => {},
   setLogged: action => {},
@@ -66,12 +66,23 @@ export default function App() {
         if (user !== null) {
           await user.reload();
 
-          const response = await db
+          const userProfile = await db
             .collection("users")
             .where(new FieldPath("identity", "userId"), "==", user.uid)
             .get();
 
-          response.forEach(docs => {
+          const matches = [];
+
+          const matchesQuery = await db
+            .collection("matches")
+            .where("participantsId", "array-contains", user.uid)
+            .get();
+
+          matchesQuery.forEach(match => {
+            matches.push(match.data());
+          });
+
+          userProfile.forEach(docs => {
             const data = docs.data();
             setUserProfile({
               email: user.email,
@@ -83,8 +94,8 @@ export default function App() {
               lastCandidate: data.match.lastCandidate,
               like: data.match.like,
               refuse: data.match.refuse,
-              likeReciprocal: data.match.likeReciprocal,
               whatIWant: data.whatIWant,
+              matches: matches,
             });
           });
 
