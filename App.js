@@ -9,6 +9,7 @@ import { SignInScreen } from "./screens/SignInScreen";
 import { SignUpScreen } from "./screens/SignUpScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { CompleteProfileScreen } from "./screens/CompleteProfileScreen";
+import { MessageScreen } from "./screens/MessageScreen";
 
 // tools
 import { createFakeProfiles } from "./tools/fakeTool.js";
@@ -139,7 +140,12 @@ const HomeStack = createStackNavigator();
 
 function HomeStackScreen() {
   const appState = useContext(AppStateContext);
-  return <HomeStack.Navigator>{appState.userProfile.profileComplete === false ? <HomeStack.Screen name="CompleteProfile">{props => <CompleteProfileScreen />}</HomeStack.Screen> : <HomeStack.Screen name="Home">{props => <HomeScreen {...props} />}</HomeStack.Screen>}</HomeStack.Navigator>;
+  return (
+    <HomeStack.Navigator>
+      {appState.userProfile.profileComplete === false ? <HomeStack.Screen name="CompleteProfile">{props => <CompleteProfileScreen />}</HomeStack.Screen> : <HomeStack.Screen name="Home">{props => <HomeScreen {...props} />}</HomeStack.Screen>}
+      <HomeStack.Screen name="Message">{props => <MessageScreen {...props} />}</HomeStack.Screen>
+    </HomeStack.Navigator>
+  );
 }
 
 const LoginStack = createStackNavigator();

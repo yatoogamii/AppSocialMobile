@@ -241,7 +241,7 @@ export function HomeScreen({ navigation }) {
 
   return (
     <>
-      <View style={styles.containerCenter}>
+      <View style={styles.imageContainer}>
         {allCandidates.length > 0 && (
           <>
             <Image style={styles.image} source={{ uri: allCandidates[allCandidates.length - 1].identity.photos[0] }} />
@@ -255,15 +255,18 @@ export function HomeScreen({ navigation }) {
         <Text style={styles.title}>Hello ! Bienvenue dans le Home</Text>
         <Button title="Log out" onPress={logout} />
       </View>
+      <View style={styles.containerCenter}>
+        <Text style={styles.title}>Go to messaging</Text>
+        <Button title="Go to message" onPress={() => navigation.navigate("Message")} />
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   containerCenter: {
-    flex: 1,
+    flex: 2,
     justifyContent: "center",
-    alignItems: "stretch",
     marginHorizontal: 20,
   },
   title: {
@@ -274,6 +277,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 20,
     marginBottom: 20,
+  },
+  imageContainer: {
+    flex: 3,
+    marginHorizontal: 20,
   },
 });
 
