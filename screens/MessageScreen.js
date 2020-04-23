@@ -51,57 +51,5 @@ export function MessageScreen({ route, navigation }) {
     }
   }
 
-  return <GiftedChat messages={currentMatch[0].messages.reverse()} onSend={message => sendMessage(message)} user={{ _id: appState.userProfile.userId }} />;
+  return <GiftedChat messages={currentMatch[0].messages.reverse()} onSend={message => sendMessage(message)} user={{ _id: appState.userProfile.userId }} alwaysShowSend={true} />;
 }
-// export function MessageScreen({ route, navigation }) {
-//   const appState = useContext(AppStateContext);
-//   const { participantsId } = route.params;
-//   const matches = Array.from(appState.userProfile.matches);
-
-//   const currentMatch = matches.filter(match => {
-//     return match.participantsId.includes(participantsId[0]) && match.participantsId.includes(participantsId[1]);
-//   });
-
-//   return (
-//     <View style={styles.containerCenter}>
-//       <FlatList data={currentMatch[0].messages} renderItem={({ item }) => <Message match={item} />} keyExtractor={(item, index) => index.toString()} />
-//       <TextInput style={styles.input} placeholder="your text" />
-//     </View>
-//   );
-// }
-
-// function Message({ match }) {
-//   console.log(match);
-//   const { text, time, byWho } = match;
-//   const appState = useContext(AppStateContext);
-//   return (
-//     <View styles={byWho === appState.userProfile.userId ? styles.textMe : styles.textCandidate}>
-//       <Text>{text}</Text>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   containerCenter: {
-//     flex: 1,
-//     justifyContent: "center",
-//   },
-//   text: {
-//     marginBottom: 5,
-//     textAlign: "center",
-//   },
-//   textMe: {
-//     color: "blue",
-//   },
-//   textCandidate: {
-//     color: "white",
-//   },
-//   image: {
-//     flex: 1,
-//     width: "100%",
-//     height: 100,
-//   },
-//   input: {
-//     width: "100%",
-//   },
-// });

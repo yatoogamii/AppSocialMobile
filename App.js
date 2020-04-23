@@ -122,7 +122,7 @@ export default function App() {
 
   useEffect(() => {
     checkUserAlreadyLogged();
-    // createFakeProfiles(1);
+    // createFakeProfiles(20);
   }, []);
 
   if (isLoading) {

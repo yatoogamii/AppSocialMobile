@@ -44,7 +44,7 @@ export function HomeScreen({ navigation }) {
       newAllCandidates.splice(newAllCandidates.length - 1, 1);
 
       if (newAllCandidates.length === 0) {
-        fetchAllProfiles(allCandidates[allCandidates.length - 1].identity.userId);
+        fetchAllProfiles();
       }
 
       // update allCandidates without refused candidate
@@ -64,25 +64,6 @@ export function HomeScreen({ navigation }) {
       // if other user already like current user
       if (allCandidates[allCandidates.length - 1].match.like.includes(appState.userProfile.userId)) {
         // create match document
-        const newLikeList = appState.userProfile.like;
-        newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
-        appState.setUserProfile({
-          like: newLikeList,
-        });
-        const userProfile = await db
-          .collection("users")
-          .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
-          .get();
-
-        userProfile.forEach(docs => {
-          const newLikeList = docs.data().match.like;
-          newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
-          docs.ref.update({
-            "match.like": newLikeList,
-          });
-
-          currentUserProfile = docs.data();
-        });
 
         // matches
         await db.collection("matches").add({
@@ -106,11 +87,32 @@ export function HomeScreen({ navigation }) {
         });
       }
 
+      const newLikeList = appState.userProfile.like;
+      newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
+      appState.setUserProfile({
+        like: newLikeList,
+      });
+
+      const userProfile = await db
+        .collection("users")
+        .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
+        .get();
+
+      userProfile.forEach(docs => {
+        const newLikeList = docs.data().match.like;
+        newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
+        docs.ref.update({
+          "match.like": newLikeList,
+        });
+
+        currentUserProfile = docs.data();
+      });
+
       // remove refused candidate
       newAllCandidates.splice(newAllCandidates.length - 1, 1);
 
       if (newAllCandidates.length === 0) {
-        fetchAllProfiles(allCandidates[allCandidates.length - 1].identity.userId);
+        fetchAllProfiles();
       }
 
       // update allCandidates without refused candidate
@@ -123,6 +125,10 @@ export function HomeScreen({ navigation }) {
   async function updateLastCandidate() {
     try {
       setLastCandidate(allCandidates[allCandidates.length - 1].identity.userId);
+
+      appState.setUserProfile({
+        lastCandidate: allCandidates[allCandidates.length - 1].identity.userId,
+      });
 
       // set lastCandidate for current user into bdd
       const userProfile = await db
@@ -149,16 +155,16 @@ export function HomeScreen({ navigation }) {
     }
   }
 
-  async function fetchAllProfiles(newLastCandidate = "") {
+  async function fetchAllProfiles() {
     try {
       let query = [];
       const newAllCandidates = [];
 
-      if (newLastCandidate !== "") {
+      if (appState.userProfile.lastCandidate) {
         query = await db
           .collection("users")
           .orderBy(new FieldPath("identity", "userId"))
-          .startAfter(newLastCandidate)
+          .startAfter(appState.userProfile.lastCandidate)
           // .where(new FieldPath("identity", "gender"), "==", appState.userProfile.whatIWant.gender)
           // .where(new FieldPath("identity", "sexualOrientation"), "==", appState.userProfile.whatIWant.sexualOrientation)
           // .where(new FieldPath("identity", "city"), "==", appState.userProfile.whatIWant.city)
@@ -175,11 +181,13 @@ export function HomeScreen({ navigation }) {
           .get();
       }
 
+      console.log(query);
+
       // forEach user find check if current user already refuse or like him and otherwise push him into newAllCandidates
       query.forEach(user => {
         const userData = user.data();
 
-        if (!appState.userProfile.refuse.includes(userData.identity.userId) && !appState.userProfile.like.includes(userData.identity.userId)) {
+        if (!appState.userProfile.refuse.includes(userData.identity.userId) && !appState.userProfile.like.includes(userData.identity.userId) && appState.userProfile.userId !== userData.identity.userId) {
           newAllCandidates.push(userData);
         }
       });
@@ -234,6 +242,9 @@ export function HomeScreen({ navigation }) {
       setAllCandidates([]);
     };
   }, []);
+
+  console.log(appState);
+  console.log(allCandidates);
 
   return (
     <>
