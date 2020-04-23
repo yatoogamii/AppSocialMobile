@@ -63,7 +63,6 @@ export function HomeScreen({ navigation }) {
 
       // if other user already like current user
       if (allCandidates[allCandidates.length - 1].match.like.includes(appState.userProfile.userId)) {
-        console.log("match");
         // create match document
         const newLikeList = appState.userProfile.like;
         newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
@@ -230,14 +229,11 @@ export function HomeScreen({ navigation }) {
   }
 
   useEffect(() => {
-    console.log(appState.userProfile);
     fetchAllProfiles();
     return () => {
       setAllCandidates([]);
     };
   }, []);
-
-  console.log(allCandidates);
 
   return (
     <>
@@ -257,7 +253,7 @@ export function HomeScreen({ navigation }) {
       </View>
       <View style={styles.containerCenter}>
         <Text style={styles.title}>Go to messaging</Text>
-        <Button title="Go to message" onPress={() => navigation.navigate("Message")} />
+        <Button title="Go to message" onPress={() => navigation.navigate("AllMessage")} />
       </View>
     </>
   );

@@ -9,6 +9,7 @@ import { SignInScreen } from "./screens/SignInScreen";
 import { SignUpScreen } from "./screens/SignUpScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { CompleteProfileScreen } from "./screens/CompleteProfileScreen";
+import { AllMessageScreen } from "./screens/AllMessageScreen";
 import { MessageScreen } from "./screens/MessageScreen";
 
 // tools
@@ -72,33 +73,42 @@ export default function App() {
             .where(new FieldPath("identity", "userId"), "==", user.uid)
             .get();
 
-          const matches = [];
+          let matches = [];
 
-          const matchesQuery = await db
+          // const matchesQuery = await db
+          //   .collection("matches")
+          //   .where("participantsId", "array-contains", user.uid)
+          //   .get();
+
+          // matchesQuery.forEach(match => {
+          //   matches.push(match.data());
+          // });
+
+          await db
             .collection("matches")
             .where("participantsId", "array-contains", user.uid)
-            .get();
-
-          matchesQuery.forEach(match => {
-            matches.push(match.data());
-          });
-
-          userProfile.forEach(docs => {
-            const data = docs.data();
-            setUserProfile({
-              email: user.email,
-              displayName: user.displayName,
-              phone: user.phoneNumber,
-              photoURL: user.photoURL,
-              userId: user.uid,
-              profileComplete: data.permissions.profileComplete,
-              lastCandidate: data.match.lastCandidate,
-              like: data.match.like,
-              refuse: data.match.refuse,
-              whatIWant: data.whatIWant,
-              matches: matches,
+            .onSnapshot(querySnapshot => {
+              matches = [];
+              querySnapshot.forEach(match => {
+                matches.push(match.data());
+              });
+              userProfile.forEach(docs => {
+                const data = docs.data();
+                setUserProfile({
+                  email: user.email,
+                  displayName: user.displayName,
+                  phone: user.phoneNumber,
+                  photoURL: user.photoURL,
+                  userId: user.uid,
+                  profileComplete: data.permissions.profileComplete,
+                  lastCandidate: data.match.lastCandidate,
+                  like: data.match.like,
+                  refuse: data.match.refuse,
+                  whatIWant: data.whatIWant,
+                  matches: matches,
+                });
+              });
             });
-          });
 
           setLogged(true);
         }
@@ -143,6 +153,7 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator>
       {appState.userProfile.profileComplete === false ? <HomeStack.Screen name="CompleteProfile">{props => <CompleteProfileScreen />}</HomeStack.Screen> : <HomeStack.Screen name="Home">{props => <HomeScreen {...props} />}</HomeStack.Screen>}
+      <HomeStack.Screen name="AllMessage">{props => <AllMessageScreen {...props} />}</HomeStack.Screen>
       <HomeStack.Screen name="Message">{props => <MessageScreen {...props} />}</HomeStack.Screen>
     </HomeStack.Navigator>
   );
