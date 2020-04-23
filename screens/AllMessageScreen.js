@@ -1,6 +1,6 @@
 // React
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from "react-native";
 import { AppStateContext } from "../App";
 
 // firebase
@@ -24,12 +24,12 @@ function Match({ match, navigation }) {
   });
 
   return (
-    <View>
-      <Image style={styles.image} source={{ uri: candidateProfile[0].identity.photos[0] }} />
-      <Text onPress={() => navigation.navigate("Message", { participantsId: match.participantsId })} style={styles.text}>
-        {candidateProfile[0].identity.displayName}
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => navigation.navigate("Message", { participantsId: match.participantsId })}>
+      <View>
+        <Image style={styles.image} source={{ uri: candidateProfile[0].identity.photos[0] }} />
+        <Text style={styles.text}>{candidateProfile[0].identity.displayName}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 

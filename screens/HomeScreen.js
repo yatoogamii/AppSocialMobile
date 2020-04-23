@@ -61,6 +61,21 @@ export function HomeScreen({ navigation }) {
       const newAllCandidates = Array.from(allCandidates);
       let currentUserProfile = {};
 
+      const userProfile = await db
+        .collection("users")
+        .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
+        .get();
+
+      userProfile.forEach(docs => {
+        const newLikeList = docs.data().match.like;
+        newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
+        docs.ref.update({
+          "match.like": newLikeList,
+        });
+
+        currentUserProfile = docs.data();
+      });
+
       // if other user already like current user
       if (allCandidates[allCandidates.length - 1].match.like.includes(appState.userProfile.userId)) {
         // create match document
@@ -91,21 +106,6 @@ export function HomeScreen({ navigation }) {
       newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
       appState.setUserProfile({
         like: newLikeList,
-      });
-
-      const userProfile = await db
-        .collection("users")
-        .where(new FieldPath("identity", "userId"), "==", appState.userProfile.userId)
-        .get();
-
-      userProfile.forEach(docs => {
-        const newLikeList = docs.data().match.like;
-        newLikeList.push(allCandidates[allCandidates.length - 1].identity.userId);
-        docs.ref.update({
-          "match.like": newLikeList,
-        });
-
-        currentUserProfile = docs.data();
       });
 
       // remove refused candidate
@@ -181,8 +181,6 @@ export function HomeScreen({ navigation }) {
           .get();
       }
 
-      console.log(query);
-
       // forEach user find check if current user already refuse or like him and otherwise push him into newAllCandidates
       query.forEach(user => {
         const userData = user.data();
@@ -242,9 +240,6 @@ export function HomeScreen({ navigation }) {
       setAllCandidates([]);
     };
   }, []);
-
-  console.log(appState);
-  console.log(allCandidates);
 
   return (
     <>
