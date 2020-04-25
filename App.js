@@ -3,6 +3,7 @@ import React, { useState, useEffect, useReducer, useContext, createContext } fro
 import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 // components
 import { SignInScreen } from "./screens/SignInScreen";
@@ -141,21 +142,21 @@ export default function App() {
         setUserProfile,
         setLogged: setLogged,
       }}>
-      <NavigationContainer>{logged === false ? <LoginStackScreen /> : <HomeStackScreen />}</NavigationContainer>
+      <NavigationContainer>{logged === false ? <LoginStackScreen /> : <HomeTabScreen />}</NavigationContainer>
     </AppStateContext.Provider>
   );
 }
 
-const HomeStack = createStackNavigator();
+const HomeTab = createBottomTabNavigator();
 
-function HomeStackScreen() {
+function HomeTabScreen() {
   const appState = useContext(AppStateContext);
   return (
-    <HomeStack.Navigator>
-      {appState.userProfile.profileComplete === false ? <HomeStack.Screen name="CompleteProfile">{props => <CompleteProfileScreen />}</HomeStack.Screen> : <HomeStack.Screen name="Home">{props => <HomeScreen {...props} />}</HomeStack.Screen>}
-      <HomeStack.Screen name="AllMessage">{props => <AllMessageScreen {...props} />}</HomeStack.Screen>
-      <HomeStack.Screen name="Message">{props => <MessageScreen {...props} />}</HomeStack.Screen>
-    </HomeStack.Navigator>
+    <HomeTab.Navigator>
+      {appState.userProfile.profileComplete === false ? <HomeTab.Screen name="CompleteProfile" component={CompleteProfileScreen} /> : <HomeTab.Screen name="Home" component={HomeScreen} />}
+      <HomeTab.Screen name="AllMessage" component={AllMessageScreen} />
+      <HomeTab.Screen name="Message" component={MessageScreen} />
+    </HomeTab.Navigator>
   );
 }
 
