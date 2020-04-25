@@ -1,6 +1,7 @@
 // React
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from "react-native";
+import FastImage from "react-native-fast-image";
 import { AppStateContext } from "../App";
 
 // firebase
@@ -26,7 +27,7 @@ function Match({ match, navigation }) {
   return (
     <TouchableOpacity onPress={() => navigation.navigate("Message", { participantsId: match.participantsId })}>
       <View>
-        <Image style={styles.image} source={{ uri: candidateProfile[0].identity.photos[0] }} />
+        <FastImage style={styles.image} source={{ uri: candidateProfile[0].identity.photos[0], priority: FastImage.priority.high }} />
         <Text style={styles.text}>{candidateProfile[0].identity.displayName}</Text>
       </View>
     </TouchableOpacity>

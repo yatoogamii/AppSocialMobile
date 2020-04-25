@@ -3,7 +3,7 @@
 // @TODO integrate audio (long)
 // React
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Text, TextInput, View, Image, FlatList, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TextInput, View, FlatList, TouchableOpacity } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { AppStateContext } from "../App";
 import ImagePicker from "react-native-image-picker";

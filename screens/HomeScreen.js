@@ -1,7 +1,8 @@
 // React
 import React, { useState, useEffect, useContext, useReducer } from "react";
-import { StyleSheet, Text, View, Button, Image } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { AppStateContext } from "../App";
+import FastImage from "react-native-fast-image";
 
 // firebase
 import auth from "@react-native-firebase/auth";
@@ -246,7 +247,7 @@ export function HomeScreen({ navigation }) {
       <View style={styles.imageContainer}>
         {allCandidates.length > 0 && (
           <>
-            <Image style={styles.image} source={{ uri: allCandidates[allCandidates.length - 1].identity.photos[0] }} />
+            <FastImage style={styles.image} source={{ uri: allCandidates[allCandidates.length - 1].identity.photos[0], priority: FastImage.priority.high }} />
             <Text style={styles.title}>{allCandidates[0] ? allCandidates[allCandidates.length - 1].identity.displayName : ""}</Text>
             <Button title="Yes" onPress={() => likeCandidate()} />
             <Button title="No" onPress={() => refuseCandidate()} />

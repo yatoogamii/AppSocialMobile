@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet } from "react-native";
+import FastImage from "react-native-fast-image";
 import Lightbox from "react-native-lightbox";
 
 export function ImageComponent(args) {
@@ -7,7 +8,7 @@ export function ImageComponent(args) {
   const { currentMessage } = args;
   return (
     <Lightbox underlayColor="transparent" swipeToDismiss={false} onOpen={() => setOpen(true)} willClose={() => setOpen(false)}>
-      <Image style={open ? styles.imageBig : styles.imageSmall} source={{ uri: currentMessage.image }} />
+      <FastImage style={open ? styles.imageBig : styles.imageSmall} source={{ uri: currentMessage.image, priority: FastImage.priority.high }} />
     </Lightbox>
   );
 }
@@ -19,7 +20,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 13,
     margin: 3,
-    resizeMode: "cover",
   },
   imageBig: {
     position: "absolute",
