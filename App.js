@@ -41,6 +41,9 @@ import firestore from "@react-native-firebase/firestore";
 export const db = firestore();
 export const { FieldPath } = firestore;
 
+// AdMob
+import admob, { MaxAdContentRating, AdsConsent, AdsConsentStatus } from "@react-native-firebase/admob";
+
 // context
 export const AppStateContext = createContext(null);
 
@@ -61,6 +64,24 @@ export default function App() {
 
   function setLoggedReducer(state, action) {
     return action;
+  }
+
+  async function initAdMobConsent() {
+    try {
+      const consentInfo = await AdsConsent.requestInfoUpdate(["pub-9303553384498866"]);
+      console.log(consentInfo);
+
+      if (consentInfo.isRequestLocationInEeaOrUnknown && consentInfo.status === AdsConsentStatus.UNKNOWN) {
+        await AdsConsent.showForm({
+          privacyPolicy: "https://invertase.io/privacy-policy",
+          withPersonalizedAds: true,
+          withNonPersonalizedAds: true,
+          withAdFree: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   function checkUserAlreadyLogged() {
@@ -122,8 +143,17 @@ export default function App() {
   }
 
   useEffect(() => {
-    checkUserAlreadyLogged();
-    // createFakeProfiles(20);
+    admob()
+      .setRequestConfiguration({
+        maxAdContentRating: MaxAdContentRating.PG,
+        tagForChildDirectedTreatment: true,
+        tagForUnderAgeOfConsent: true,
+      })
+      .then(() => {
+        initAdMobConsent();
+        checkUserAlreadyLogged();
+        // createFakeProfiles(20);
+      });
   }, []);
 
   if (isLoading) {
