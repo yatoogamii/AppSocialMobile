@@ -1,6 +1,7 @@
 // React import
 import React, { useState, useEffect, useReducer, useContext, createContext } from "react";
 import { StyleSheet, Text, View, ActivityIndicator, Alert } from "react-native";
+import Icon from "react-native-vector-icons/SimpleLineIcons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -34,6 +35,8 @@ const appState = {
     whatIWant: {},
     matches: [],
   },
+  notification: false,
+  setNotification: action => {},
   setUserProfile: action => {},
   setLogged: action => {},
 };
@@ -55,8 +58,9 @@ export const AppStateContext = createContext(null);
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [logged, setLogged] = useReducer(setLoggedReducer, false);
+  const [logged, setLogged] = useReducer(setBasicReducer, false);
   const [userProfile, setUserProfile] = useReducer(userProfileReducer, appState);
+  const [notification, setNotification] = useReducer(setBasicReducer, false);
 
   function userProfileReducer(state, action) {
     return {
@@ -68,7 +72,7 @@ export default function App() {
     };
   }
 
-  function setLoggedReducer(state, action) {
+  function setBasicReducer(state, action) {
     return action;
   }
 
@@ -118,6 +122,10 @@ export default function App() {
             .onSnapshot(querySnapshot => {
               matches = [];
               querySnapshot.forEach(match => {
+                if (!match.data().viewBy.includes(user.uid)) {
+                  console.log("Notification");
+                  setNotification(true);
+                }
                 matches.push(match.data());
               });
               userProfile.forEach(async docs => {
@@ -184,8 +192,10 @@ export default function App() {
     <AppStateContext.Provider
       value={{
         ...userProfile,
+        notification,
+        setNotification,
         setUserProfile,
-        setLogged: setLogged,
+        setLogged,
       }}>
       <NavigationContainer>{logged === false ? <LoginStackScreen /> : <HomeTabScreen />}</NavigationContainer>
     </AppStateContext.Provider>
@@ -197,7 +207,28 @@ const HomeTab = createBottomTabNavigator();
 function HomeTabScreen() {
   const appState = useContext(AppStateContext);
   return (
-    <HomeTab.Navigator>
+    <HomeTab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          console.log(appState);
+          let iconName;
+          let iconColor;
+
+          iconColor = focused ? "red" : "#1d1d1d";
+
+          switch (route.name) {
+            case "Home":
+              iconName = "home";
+              break;
+            case "AllMessage":
+              iconName = "bubbles";
+              iconColor = appState.notification === true ? "green" : iconColor;
+              break;
+          }
+
+          return <Icon name={iconName} color={iconColor} />;
+        },
+      })}>
       {appState.userProfile.profileComplete === false ? <HomeTab.Screen name="CompleteProfile" component={CompleteProfileScreen} /> : <HomeTab.Screen name="Home" component={HomeScreen} />}
       <HomeTab.Screen name="AllMessage" component={AllMessageScreen} />
       <HomeTab.Screen name="Message" component={MessageScreen} />

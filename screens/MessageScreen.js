@@ -118,6 +118,25 @@ export function MessageScreen({ route, navigation }) {
     }
   }
 
+  async function updateNotification() {
+    appState.setNotification(false);
+    const currentMatch = await db
+      .collection("matches")
+      .where("participantsId", "==", participantsId)
+      .get();
+    currentMatch.forEach(match => {
+      const matchData = match.data();
+      if (!matchData.viewBy.includes(appState.userProfile.userId)) {
+        matchData.viewBy.push(appState.userProfile.userId);
+        match.ref.update(matchData);
+      }
+    });
+  }
+
+  useEffect(() => {
+    updateNotification();
+  }, []);
+
   function ChatActions() {
     return (
       <TouchableOpacity onPress={() => openImageActions()}>
