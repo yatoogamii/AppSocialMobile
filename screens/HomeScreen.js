@@ -8,6 +8,9 @@ import FastImage from "react-native-fast-image";
 import auth from "@react-native-firebase/auth";
 import { db, FieldPath } from "../App";
 
+// messaging (notif)
+import messaging from "@react-native-firebase/messaging";
+
 export function HomeScreen({ navigation }) {
   const appState = useContext(AppStateContext);
   const [lastCandidate, setLastCandidate] = useState(appState.userProfile.lastCandidate);
@@ -83,19 +86,20 @@ export function HomeScreen({ navigation }) {
 
         // matches
         await db.collection("matches").add({
-          // @1 create variable for this and re used it
-          // @2 add ref of candidate and currentUser profile
+          // @TODO @1 create variable for this and re used it
           participantsId: [appState.userProfile.userId, allCandidates[allCandidates.length - 1].identity.userId],
           participantsProfile: [allCandidates[allCandidates.length - 1], currentUserProfile],
           messages: [],
+          viewBy: [],
         });
 
         const newMatchesList = appState.userProfile.matches;
         newMatchesList.push({
-          // @1 create variable for this and re used it
+          // @TODO @1 create variable for this and re used it
           participantsId: [appState.userProfile.userId, allCandidates[allCandidates.length - 1].identity.userId],
           participantsProfile: [allCandidates[allCandidates.length - 1], currentUserProfile],
           messages: [],
+          viewBy: [],
         });
 
         appState.setUserProfile({

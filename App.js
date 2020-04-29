@@ -1,6 +1,6 @@
 // React import
 import React, { useState, useEffect, useReducer, useContext, createContext } from "react";
-import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, ActivityIndicator, Alert } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,6 +15,9 @@ import { MessageScreen } from "./screens/MessageScreen";
 
 // tools
 import { createFakeProfiles } from "./tools/fakeTool.js";
+
+// AsyncStorage
+import AsyncStorage from "@react-native-community/async-storage";
 
 const appState = {
   userProfile: {
@@ -43,6 +46,9 @@ export const { FieldPath } = firestore;
 
 // AdMob
 import admob, { MaxAdContentRating, AdsConsent, AdsConsentStatus } from "@react-native-firebase/admob";
+
+// messaging (notif)
+import messaging from "@react-native-firebase/messaging";
 
 // context
 export const AppStateContext = createContext(null);
@@ -114,8 +120,16 @@ export default function App() {
               querySnapshot.forEach(match => {
                 matches.push(match.data());
               });
-              userProfile.forEach(docs => {
+              userProfile.forEach(async docs => {
                 const data = docs.data();
+                const deviceToken = await messaging().getToken();
+
+                if (data.identity.deviceToken !== deviceToken) {
+                  docs.ref.update({
+                    "identity.deviceToken": deviceToken,
+                  });
+                }
+
                 setUserProfile({
                   email: user.email,
                   displayName: user.displayName,
@@ -128,6 +142,7 @@ export default function App() {
                   refuse: data.match.refuse,
                   whatIWant: data.whatIWant,
                   matches: matches,
+                  deviceToken: deviceToken,
                 });
               });
             });

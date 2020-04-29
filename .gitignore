@@ -68,3 +68,6 @@ ios/
 
 # firebase
 firebase.json
+
+# firebase function
+functions/
